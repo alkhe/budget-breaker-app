@@ -15,7 +15,7 @@ export type DeployFormProps = {
   onSubmit: (params: ProjectParams) => void
 }
 
-const DEFAULT_TOKEN = '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0' // XTT
+const DEFAULT_TOKEN = process.env.DEFAULT_ERC20_ADDRESS as string // XTT
 const DEFAULT_RESIDUAL = '0x15d34aaf54267db7d7c367839aaf71a00a2c6a65'
 
 export default function DeployForm({ onSubmit }: DeployFormProps) {

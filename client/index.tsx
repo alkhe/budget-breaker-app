@@ -12,7 +12,7 @@ const config: Config = {
   },
   multicallAddresses: {
     ...MULTICALL_ADDRESSES,
-    [ChainId.Localhost]: '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82'
+    [ChainId.Localhost]: process.env.MULTICALL_ADDRESS as string
   }
 }
 

@@ -20,10 +20,10 @@
     "@usedapp/core": "^0.5.4",
     "axios": "^0.24.0",
     "axios-hooks": "^2.7.0",
-    "concurrently": "^6.3.0",
     "css-loader": "^6.5.1",
     "date-fns": "^2.25.0",
     "html-webpack-plugin": "^5.5.0",
+    "npm-run-all": "^4.1.5",
     "pino-pretty": "^7.1.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -46,11 +46,12 @@
     "pg-promise": "^10.11.1"
   },
   "scripts": {
-    "build": "concurrently yarn:build:server yarn:build:client",
+    "build": "run-p build:server build:client",
     "build:server": "tsc --project tsconfig.server.json",
     "build:client": "webpack --mode production",
-    "dev": "concurrently yarn:dev:server yarn:dev:client",
-    "dev:client": "webpack-dev-server --config webpack.config.development.ts",
-    "dev:server": "MODE=development env-cmd -f .env.local ts-node server"
+    "dev": "run-p dev:server dev:client",
+    "dev:client": "env-cmd -f .env.hardhat webpack-dev-server --config webpack.config.development.ts",
+    "dev:server": "MODE=development env-cmd -f .env.hardhat ts-node server",
+    "db:reset": "psql -f db/schema.sql budget_breaker"
   }
 }

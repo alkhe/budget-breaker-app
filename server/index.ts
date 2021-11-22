@@ -40,7 +40,7 @@ if (!dev) {
 }
 
 const provider = NETWORK === 'local'
-  ? new providers.WebSocketProvider('ws://::1:8545/')
+  ? new providers.WebSocketProvider('ws://[::1]:8545/')
   : new providers.InfuraProvider(NETWORK, API_KEY)
 const wallet = new Wallet(WALLET, provider)
 const contract_factory = ContractFactory.fromSolidity(BudgetBreakerArtifact) as unknown as BudgetBreaker__factory
