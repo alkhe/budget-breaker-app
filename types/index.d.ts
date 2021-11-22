@@ -24,3 +24,17 @@ export type Project = ProjectData & {
   id: number
   signatures: boolean[]
 }
+
+export type DeployParams = ProjectParams & {
+  address: string
+  creation_time: number
+}
+
+export type ProjectsByMemberParams = {
+  member: string
+}
+
+export type MembersByProjectParams = {
+  address: string
+}
+

@@ -1,7 +1,7 @@
 import { providers, Wallet } from 'ethers'
 import { FastifyPlugin } from 'fastify'
 import { BudgetBreaker__factory } from '../types/factories/BudgetBreaker__factory'
-import { Project, ProjectParams, ProjectInsert } from '../types'
+import { Project, ProjectParams, ProjectInsert, DeployParams, ProjectsByMemberParams, MembersByProjectParams } from '../types'
 import { IMain, IDatabase, IBaseProtocol } from 'pg-promise'
 import schedule from 'node-schedule'
 
@@ -19,14 +19,6 @@ function all(xs: boolean[]) {
 type DBO = {
   pgp: IMain
   db: IBaseProtocol<{}>
-}
-
-type ProjectsByMemberParams = {
-  member: string
-}
-
-type MembersByProjectParams = {
-  address: string
 }
 
 async function insert_project({ db, pgp }: DBO, params: ProjectInsert): Promise<number> {
@@ -69,31 +61,19 @@ export default function api(
   return (server, opts, done) => {
     server.post('/deploy', async (req, res) => {
       // TODO ensure valid params
-      const params = req.body as ProjectParams
-
-      const deployed = await contract_factory.connect(wallet).deploy(
-        params.token, wallet.address, params.residual,
-        params.members,
-        params.target, params.target_share,
-        params.execution_deadline, params.completion_deadline
-      )
-
-      const address = deployed.address
-      const creation_time = Number(await deployed.creationTime())
-
-      req.log.info(`deployed BudgetBreaker at ${ address }`)
+      const params = req.body as DeployParams
 
       const project_id = await db.tx(async t => {
         const dbo = { db: t, pgp }
 
         const project_id = await insert_project(dbo, {
-          address,
+          address: params.address,
           token: params.token,
           description: params.description,
           residual: params.residual,
           target: params.target,
           target_share: params.target_share,
-          creation_time: ms_to_utc(creation_time),
+          creation_time: ms_to_utc(params.creation_time),
           execution_deadline: ms_to_utc(params.execution_deadline),
           completion_deadline: ms_to_utc(params.completion_deadline)
         })
@@ -105,7 +85,7 @@ export default function api(
 
       req.log.info(`recorded project entry (id = ${ project_id })`)
 
-      res.send(address)
+      res.send('Success')
     })
 
     server.get('/projects-by-member', async (req, res) => {

@@ -19,7 +19,7 @@ const config: Configuration = {
     new HtmlWebpackPlugin({
       template: './client/index.html'
     }),
-    new EnvironmentPlugin(['DEFAULT_ERC20_ADDRESS', 'MULTICALL_ADDRESS'])
+    new EnvironmentPlugin(['CONTROLLER_ADDRESS', 'DEFAULT_ERC20_ADDRESS', 'MULTICALL_ADDRESS'])
   ],
   resolve: {
     extensions: ['.tsx', '.ts', '.js']

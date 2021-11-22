@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useEthers, useContractFunction } from '@usedapp/core'
 import { Project } from '../types'
 import Button from '@mui/material/Button'
@@ -22,8 +22,13 @@ export default function ProjectView({ project, signProject }: ProjectViewProps) 
 
   async function sign_project() {
     await send()
-    signProject(project, account!.toLowerCase())
   }
+
+  useEffect(() => {
+    if (state.status === 'Success') {
+      signProject(project, account!.toLowerCase())
+    }
+  }, [state])
 
   return (
     <Card variant='outlined' sx={{ p: '1rem', mb: '.5rem' }}>

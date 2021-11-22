@@ -2,9 +2,8 @@ import fastify from 'fastify'
 import fastify_static from 'fastify-static'
 import fastify_cors from 'fastify-cors'
 import path from 'path'
-import { Wallet, ContractFactory, providers } from 'ethers'
-import BudgetBreakerArtifact from '../contracts/BudgetBreaker.json'
-import { BudgetBreaker__factory } from '../types/factories/BudgetBreaker__factory'
+import { Wallet, providers } from 'ethers'
+import { budget_breaker_factory } from '../common/ethers'
 import pgp_factory from 'pg-promise'
 import api from './api'
 
@@ -14,7 +13,7 @@ const dev = env.MODE === 'development'
 const SERVER_PORT = Number(env.SERVER_PORT as string)
 const NETWORK = env.NETWORK as string
 const API_KEY = env.API_KEY as (string | undefined)
-const WALLET = env.WALLET as string
+const CONTROLLER_PK = env.CONTROLLER_PK as string
 const PG_HOST = env.PG_HOST as string
 const PG_PORT = Number(env.PG_PORT as string)
 const PG_NAME = env.PG_NAME as string
@@ -42,12 +41,11 @@ if (!dev) {
 const provider = NETWORK === 'local'
   ? new providers.WebSocketProvider('ws://[::1]:8545/')
   : new providers.InfuraProvider(NETWORK, API_KEY)
-const wallet = new Wallet(WALLET, provider)
-const contract_factory = ContractFactory.fromSolidity(BudgetBreakerArtifact) as unknown as BudgetBreaker__factory
+const wallet = new Wallet(CONTROLLER_PK, provider)
 
 server.register(api(
   pgp, db,
-  provider, wallet, contract_factory
+  provider, wallet, budget_breaker_factory
 ))
 
 async function start() {
