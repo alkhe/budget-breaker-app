@@ -1,12 +1,15 @@
 import { providers, Wallet } from 'ethers'
 import { FastifyPlugin } from 'fastify'
-import { BudgetBreaker__factory } from '../types/factories/BudgetBreaker__factory'
-import { Project, ProjectParams, ProjectInsert, DeployParams, ProjectsByMemberParams, MembersByProjectParams } from '../types'
+import { DBO, Project, ProjectParams, ProjectInsert, ProjectMemberRelation, DeployParams, ProjectsByMemberParams, MembersByProjectParams } from '../types'
 import { IMain, IDatabase, IBaseProtocol } from 'pg-promise'
-import schedule from 'node-schedule'
+import { budget_breaker_factory } from '../common/ethers'
+import Bree from 'bree'
+import path from 'path'
 
-function ms_to_utc(x: number) {
-  return (new Date(x)).toUTCString()
+const complete_worker_path = path.join(__dirname, '../jobs/complete.js')
+
+function ms_to_iso(x: number) {
+  return (new Date(x)).toISOString()
 }
 
 function all(xs: boolean[]) {
@@ -14,11 +17,6 @@ function all(xs: boolean[]) {
     if (!xs[i]) return false
   }
   return true
-}
-
-type DBO = {
-  pgp: IMain
-  db: IBaseProtocol<{}>
 }
 
 async function insert_project({ db, pgp }: DBO, params: ProjectInsert): Promise<number> {
@@ -37,26 +35,20 @@ async function get_projects_by_member({ db }: DBO, member: string): Promise<stri
 }
 
 async function get_signatures_by_project({ db }: DBO, project_id: number): Promise<boolean[]> {
-  return db.map('select signed from project_member_relations where project_id = $1', [project_id], row => row.signed)
+  return db.map('select signed from project_member_relations where project_id = $1', [project_id], (row: ProjectMemberRelation) => row.signed)
 }
 
 async function get_project_by_id({ db }: DBO, project_id: number): Promise<Project> {
-  return await db.one('select address from projects where id = $1', [project_id])
+  return await db.one('select * from projects where id = $1', [project_id])
 }
 
 export default function api(
   pgp: IMain, db: IDatabase<{}>,
-  provider: providers.Provider, wallet: Wallet, contract_factory: BudgetBreaker__factory
+  provider: providers.Provider, wallet: Wallet,
+  bree: Bree
 ): FastifyPlugin {
 
   const dbo = { db, pgp }
-
-  async function schedule_complete(project_id: number, project_address: string) {
-      console.log(`completing project ${project_id}`)
-      const budget_breaker = contract_factory.connect(wallet).attach(project_address)
-      await budget_breaker.complete({ gasLimit: 1000000 })
-      console.log(`completing project ${project_id}`)
-  }
 
   return (server, opts, done) => {
     server.post('/deploy', async (req, res) => {
@@ -73,9 +65,9 @@ export default function api(
           residual: params.residual,
           target: params.target,
           target_share: params.target_share,
-          creation_time: ms_to_utc(params.creation_time),
-          execution_deadline: ms_to_utc(params.execution_deadline),
-          completion_deadline: ms_to_utc(params.completion_deadline)
+          creation_time: ms_to_iso(params.creation_time),
+          execution_deadline: ms_to_iso(params.execution_deadline),
+          completion_deadline: ms_to_iso(params.completion_deadline)
         })
 
         await insert_project_member_relations(dbo, project_id, params.members)
@@ -118,13 +110,30 @@ export default function api(
       const project = await get_project_by_id(dbo, params.project_id)
 
       if (all(signatures)) {
-        req.log.info(`executing project ${params.project_id}`)
-        const project = await get_project_by_id(dbo, params.project_id)
-        const budget_breaker = contract_factory.connect(wallet).attach(project.address)
+        req.log.info(`executing project ${ project.id }`)
+        const budget_breaker = budget_breaker_factory.connect(wallet).attach(project.address)
         await budget_breaker.execute({ gasLimit: 1000000 })
-        req.log.info(`executed project ${params.project_id}`)
+        req.log.info(`executed project ${ project.id }`)
 
-        schedule.scheduleJob(new Date(project.completion_deadline), schedule_complete.bind(null, project.id, project.address))
+        req.log.info(`scheduling completion of project ${ project.id }`)
+
+        const job_name = `complete-${ project.id }`
+
+        bree.add({
+          name: job_name,
+          path: complete_worker_path,
+          date: new Date(project.completion_deadline),
+          worker: {
+            workerData: {
+              id: project.id,
+              address: project.address
+            }
+          }
+        })
+
+        bree.start(job_name)
+
+        req.log.info(`scheduled completion of project ${ project.id }`)
       }
     })
 

@@ -43,7 +43,6 @@
     "fastify": "^3.22.1",
     "fastify-cors": "^6.0.2",
     "fastify-static": "^4.4.2",
-    "node-schedule": "^2.0.0",
     "pg-promise": "^10.11.1"
   },
   "scripts": {

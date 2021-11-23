@@ -9,20 +9,27 @@ export type ProjectParams = {
   completion_deadline: number
 }
 
-export type ProjectData = ProjectParams & {
+export type ProjectInsert = Omit<ProjectParams, 'members' | 'creation_time' | 'execution_deadline' | 'completion_deadline'> & {
   address: string
-  creation_time: number
-}
-
-export type ProjectInsert = Omit<ProjectData, 'members' | 'creation_time' | 'execution_deadline' | 'completion_deadline'> & {
   creation_time: string
   execution_deadline: string
   completion_deadline: string
 }
 
-export type Project = ProjectData & {
+export type ProjectData = ProjectInsert & {
   id: number
+}
+
+export type Project = ProjectData & {
+  members: string[]
   signatures: boolean[]
+}
+
+export type ProjectMemberRelation = {
+  id: number
+  project_id: number
+  member: string
+  signed: boolean
 }
 
 export type DeployParams = ProjectParams & {
@@ -36,5 +43,10 @@ export type ProjectsByMemberParams = {
 
 export type MembersByProjectParams = {
   address: string
+}
+
+export type DBO = {
+  pgp: IMain
+  db: IBaseProtocol<{}>
 }
 

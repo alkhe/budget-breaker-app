@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react'
 import { useEthers, useContractFunction } from '@usedapp/core'
-import { Project } from '../types'
+import { Project, ProjectsByMemberParams } from '../types'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
 import BudgetBreakerArtifact from '../contracts/BudgetBreaker.json'
-import { ContractFactory, Contract } from '@usedapp/core/node_modules/@ethersproject/contracts'
+import { ContractFactory } from '@usedapp/core/node_modules/@ethersproject/contracts'
 
 export type ProjectViewProps = {
   project: Project
@@ -15,6 +15,7 @@ export type ProjectViewProps = {
 export default function ProjectView({ project, signProject }: ProjectViewProps) {
   const { account } = useEthers()
 
+  // TODO use exported factory from common/ethers.ts
   const BudgetBreaker = ContractFactory.fromSolidity(BudgetBreakerArtifact)
   const contract = BudgetBreaker.attach(project.address)
 
