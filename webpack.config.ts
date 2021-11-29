@@ -6,12 +6,16 @@ const config: Configuration = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
+        test: /\.tsx?$/i,
         loader: 'ts-loader'
       },
       {
-        test: /\.css$/,
+        test: /\.css$/i,
         use: ['style-loader', 'css-loader']
+      },
+      {
+        test: /\.(ttf|otf|woff|woff2)$/i,
+        type: 'asset/resource'
       }
     ]
   },

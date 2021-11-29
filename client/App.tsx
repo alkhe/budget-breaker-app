@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useEtherBalance, useEthers, useSendTransaction } from '@usedapp/core'
-import { formatEther } from '@ethersproject/units'
+import { useEtherBalance, useEthers } from '@usedapp/core'
 import axios from 'axios'
 import useAxios from 'axios-hooks'
 import { Project, ProjectParams, DeployParams } from '../types'
@@ -8,10 +7,10 @@ import DeployForm from './DeployForm'
 import ProjectView from './ProjectView'
 import ProjectsView from './ProjectsView'
 import Button from '@mui/material/Button'
-import { createTheme } from '@mui/material/styles'
-import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
+import PersistentModal, { PersistentModalState } from './PersistentModal'
 import { budget_breaker_factory } from '../common/ethers'
+import { shorten_address, shorten_balance } from './util'
 
 import './index.css'
 
@@ -21,7 +20,11 @@ export default function App() {
   const { activateBrowserWallet, account, library } = useEthers()
   const ether_balance = useEtherBalance(account)
   const [selected_project, set_selected_project] = useState<Project | null>(null)
-  const { sendTransaction, state } = useSendTransaction({ transactionName: 'Deploy Budget Breaker' })
+
+  const [modal_state, set_modal_state] = useState<PersistentModalState>({
+    open: false,
+    content: ''
+  })
 
   const [{ data: projects }, refetch_projects] = useAxios<Project[]>(
     {
@@ -73,8 +76,6 @@ export default function App() {
     const res = await axios.post('http://localhost:3000/deploy', server_params)
 
     refetch_projects()
-
-    console.log(res.data)
   }
 
   async function sign_project(project: Project, member: string) {
@@ -83,27 +84,40 @@ export default function App() {
     refetch_projects()
   }
 
+  const submit_deploy = async (params: ProjectParams) => {
+    await deploy_budget_breaker(params)
+    set_modal_state({ ...modal_state, open: false })
+  }
+
+  const begin_create_project = () => set_modal_state({ open: true, content: <DeployForm onSubmit={ submit_deploy } /> })
+
   return (
     <>
-      <Box sx={{ background: '#334', color: '#ccd', width: 'calc(100% - 2rem)', p: '1rem', mb: '2rem', textAlign: 'center' }}>
-        <Typography variant='caption'>
-          Account: {account}
-          {ether_balance ? <><br />Balance: {formatEther(ether_balance)} ETH</> : ''}
-        </Typography>
+      <PersistentModal state={ modal_state } setModalState={ set_modal_state } />
+      <Box sx={{ textAlign: 'right', mb: '2rem' }} className='mono mgray'>
+        {account ? shorten_address(account) : ''}
+        <br />
+        {ether_balance ? shorten_balance(ether_balance) : '--'} ETH
       </Box>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', width: '640px', mb: '2rem' }}>
-        <DeployForm onSubmit={deploy_budget_breaker} />
-        <br />
-        <Typography variant='h4' sx={{ cursor: 'pointer' }} onClick={() => set_selected_project(null)}>
-          Projects
-        </Typography>
-        <br />
+      <div className={`mgray bold interactive flex align-center ${ selected_project ? '' : 'hidden' }`} onClick={() => set_selected_project(null)}>
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+        </svg>
+        Projects
+      </div>
+      <div className='heading'>
         {
-          selected_project == null
-            ? <ProjectsView projects={projects || []} selectProject={set_selected_project} />
-            : <ProjectView project={selected_project} signProject={sign_project} />
+          selected_project
+            ? (selected_project.description || 'Untitled Project')
+            : 'Projects'
         }
-      </Box>
+      </div>
+      {
+        selected_project
+          ? <ProjectView project={selected_project} signProject={sign_project} />
+          : <ProjectsView projects={projects || []} selectProject={set_selected_project} beginCreateProject={begin_create_project} />
+      }
     </>
   )
 }
+

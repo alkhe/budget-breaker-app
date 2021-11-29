@@ -2,10 +2,200 @@ html, body {
   margin: 0;
   padding: 0;
   width: 100%;
+  font-size: 16px;
+}
+
+body {
+  display: flex;
+  justify-content: center;
 }
 
 #root {
   display: flex;
   flex-direction: column;
+  align-items: stretch;
+  width: 720px;
+  padding-top: 2rem;
+  font-family: 'Work Sans';
+  color: #444444;
+}
+
+input {
+  font-family: 'Fira Code';
+}
+
+@font-face {
+  font-family: 'Work Sans';
+  src: url('./fonts/WorkSans-Regular.ttf');
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: 'Work Sans';
+  src: url('./fonts/WorkSans-Bold.ttf');
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: 'Fira Code';
+  src: url('./fonts/FiraCode-Regular.woff2');
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: 'Fira Code';
+  src: url('./fonts/FiraCode-SemiBold.woff2');
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: 'Fira Code';
+  src: url('./fonts/FiraCode-Bold.woff2');
+  font-weight: 700;
+}
+
+.mono {
+  font-family: 'Fira Code';
+}
+
+.heading {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.mgray {
+  color: #888888;
+}
+
+.bold {
+  font-weight: 700;
+}
+
+.flex {
+  display: flex;
+}
+
+.align-center {
   align-items: center;
 }
+
+.justify-center {
+  justify-content: center;
+}
+
+.interactive {
+  cursor: pointer;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+svg {
+  width: 1rem;
+}
+
+.projects-container {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -.75rem;
+  font-family: 'Fira Code';
+}
+
+.projects-container > * {
+  flex: 0 calc(50% - 1.5rem);
+  margin: .75rem;
+  padding: 0 1.5rem;
+  border-radius: 2px;
+  height: 12.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.project-item {
+  border: 1px solid #aaaaaa;
+  align-items: start;
+}
+
+.project-item .title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: .5rem;
+}
+
+.create-project {
+  background: #f0f0f0;
+  align-items: center;
+  font-size: 1.5rem;
+}
+
+.modal-overlay {
+  align-items: center;
+  background: rgba(96, 96, 96, 0.5);
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  left: 0;
+  opacity: 0;
+  padding: 1rem;
+  position: fixed;
+  right: 0;
+  top: 0;
+  transition: 0.2s ease-out;
+  visibility: hidden;
+  z-index: 999;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-overlay:not(.open) {
+  pointer-events: none;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 3px;
+  border: 1px solid #888888;
+  box-shadow: 0 13px 27px -5px rgba(136, 136, 136, 0.25), 0 8px 16px -8px rgba(0, 0, 0, 0.3);
+  width: 500px;
+  overflow: auto;
+  padding: 3rem;
+  position: relative;
+}
+
+.modal-container {
+  position: relative;
+}
+
+.back-button {
+  z-index: 9;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -4.5rem;
+  height: 3rem;
+  width: 3rem;
+  border-radius: 100%;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s;
+}
+
+.back-button svg {
+  height: 60%;
+  width: 60%;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+

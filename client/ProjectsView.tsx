@@ -3,6 +3,7 @@ import { Project } from '../types'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
+import { shorten_address } from './util'
 
 export type ProjectItemProps = {
   project: Project
@@ -12,44 +13,36 @@ export type ProjectItemProps = {
 export type ProjectsViewProps = {
   projects: Project[]
   selectProject: (project: Project) => void
+  beginCreateProject: () => void
 }
 
 export function ProjectItem({ project, selectProject }: ProjectItemProps) {
   return (
-    <Card variant='outlined' sx={{ p: '1rem', mb: '.5rem', cursor: 'pointer' }} onClick={ () => selectProject(project) }>
-      <Typography variant='h5'>
+    <div className='project-item interactive' onClick={ () => selectProject(project) }>
+      <span className='title'>
         {project.description}
-      </Typography>
-      <Typography variant='body1'>
-        Token: {project.token}
-        <br />
-        Address: {project.address}
-        <br />
-        Target: {project.target}
-        <br />
-        Target Share: {project.target_share}
-        <br />
-        Members: {project.members.length}
-      </Typography>
-    </Card>
+      </span>
+      Members: {project.members.length}
+      <br />
+      Token: {shorten_address(project.token)}
+      <br />
+      Target: {project.target}
+      <br />
+      Payout: {project.target_share}
+    </div>
   )
 }
 
-export default function ProjectsView({ projects, selectProject }: ProjectsViewProps) {
-  if (projects.length === 0) {
-    return (
-      <Typography variant='body1'>
-        You have no projects.
-      </Typography>
-    )
-  } else {
-    return (
-      <div>
-        {projects.map(p => (
-          <ProjectItem key={p.id} project={p} selectProject={ selectProject } />
-        ))}
+export default function ProjectsView({ projects, selectProject, beginCreateProject }: ProjectsViewProps) {
+  return (
+    <div className='projects-container'>
+      {projects.map(p => (
+        <ProjectItem key={p.id} project={p} selectProject={ selectProject } />
+      ))}
+      <div className='create-project mgray interactive' onClick={ beginCreateProject }>
+        + Create a Project
       </div>
-    )
-  }
+    </div>
+  )
 }
 
