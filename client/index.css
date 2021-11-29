@@ -20,7 +20,11 @@ body {
   color: #444444;
 }
 
-input {
+button {
+  cursor: pointer;
+}
+
+button, input {
   font-family: 'Fira Code';
 }
 
@@ -28,6 +32,12 @@ input {
   font-family: 'Work Sans';
   src: url('./fonts/WorkSans-Regular.ttf');
   font-weight: normal;
+}
+
+@font-face {
+  font-family: 'Work Sans';
+  src: url('./fonts/WorkSans-SemiBold.ttf');
+  font-weight: 600;
 }
 
 @font-face {
@@ -61,7 +71,7 @@ input {
 .heading {
   font-size: 2.25rem;
   font-weight: 700;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .mgray {
@@ -72,8 +82,24 @@ input {
   font-weight: 700;
 }
 
-.flex {
+.row {
   display: flex;
+  flex-direction: row;
+}
+
+.row.spaced {
+  margin-left: -.5rem;
+  margin-right: -.5rem;
+}
+
+.row.spaced > * {
+  margin: 0 .5rem;
+  flex: 1;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
 }
 
 .align-center {
@@ -82,6 +108,10 @@ input {
 
 .justify-center {
   justify-content: center;
+}
+
+.justify-space-between {
+  justify-content: space-between;
 }
 
 .interactive {
@@ -132,6 +162,8 @@ svg {
   font-size: 1.5rem;
 }
 
+/* Modal */
+
 .modal-overlay {
   align-items: center;
   background: rgba(96, 96, 96, 0.5);
@@ -167,6 +199,7 @@ svg {
   overflow: auto;
   padding: 3rem;
   position: relative;
+  box-sizing: border-box;
 }
 
 .modal-container {
@@ -197,5 +230,63 @@ svg {
 
 .back-button:hover {
   background: rgba(255, 255, 255, 0.5);
+}
+
+/* Deploy Form */
+
+form .group {
+  margin-bottom: 2rem;
+}
+
+form .label {
+  font-weight: 600;
+  margin-bottom: .75rem;
+}
+
+form .label:not(:first-child) {
+  margin-top: .75rem;
+}
+
+form input {
+  width: 100%;
+  font-size: 1.125rem;
+  font-family: 'Fira Code';
+  border: 1px solid #aaaaaa;
+  outline: none;
+  border-radius: 2px;
+  padding: .5rem .75rem;
+}
+
+form input::placeholder {
+  color: #aaaaaa;
+}
+
+form button {
+  width: 100%;
+  border-radius: 2px;
+  border: 1px solid #444444;
+  font-size: 1rem;
+  font-weight: 600;
+  background: transparent;
+  padding: .625rem 0;
+  transition: .3s;
+}
+
+form button:hover {
+  background: #444444;
+  color: #ffffff;
+}
+
+form .contributor {
+  padding: .5rem .75rem;
+  border-radius: 2px;
+  margin-bottom: .75rem;
+  font-family: 'Fira Code';
+  font-size: 1.125rem;
+  color: rgba(68, 68, 68, .75);
+}
+
+form .contributor svg {
+  color: rgba(68, 68, 68, .5);
 }
 

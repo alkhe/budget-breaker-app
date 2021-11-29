@@ -1,4 +1,4 @@
-import React, { useState, forwardRef, FormEvent } from 'react'
+import React, { useState, forwardRef, FormEvent, ChangeEvent, KeyboardEvent, ClipboardEvent } from 'react'
 import { ProjectParams } from '../types'
 import { nextMonday, startOfDay } from 'date-fns'
 import TextField from '@mui/material/TextField'
@@ -10,6 +10,8 @@ import InputAdornment from '@mui/material/InputAdornment'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import AdapterDateFns from '@mui/lab/AdapterDateFns'
 import RemoveIcon from '@mui/icons-material/Remove'
+import { shorten_address, validate_address } from './util'
+import randomcolor from 'randomcolor'
 
 export type DeployFormProps = {
   onSubmit: (params: ProjectParams) => void
@@ -138,6 +140,94 @@ export default function DeployForm({ onSubmit }: DeployFormProps) {
         </LocalizationProvider>
         <Button type='submit' variant='contained'>Deploy</Button>
       </Box>
+    </form>
+  )
+}
+
+export function DeployForm2({ onSubmit }: DeployFormProps) {
+  const [contributors, set_contributors] = useState<string[]>([])
+  const [current_contributor, set_current_contributor] = useState('')
+
+  const contributor_on_change = (e: ChangeEvent<HTMLInputElement>) => {
+    set_current_contributor(e.target.value)
+  }
+
+  const attempt_add_contributor = (address: string): boolean => {
+    const validated_address = validate_address(address)
+
+    if (!validated_address || contributors.includes(validated_address)) return false
+
+    set_contributors(contributors.concat([validated_address]))
+    set_current_contributor('')
+
+    return true
+  }
+
+  const contributor_on_keydown = (e: KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      attempt_add_contributor(current_contributor)
+      e.stopPropagation()
+      e.preventDefault()
+    }
+  }
+
+  const contributor_on_paste = (e: ClipboardEvent) => {
+    if (attempt_add_contributor(e.clipboardData.getData('text/plain') as string)) {
+      e.preventDefault()
+    }
+  }
+
+  const remove_contributor = (c: string) => {
+    set_contributors(contributors.filter(x => x !== c))
+  }
+
+  return (
+    <form className='deploy-form2'>
+      <div className='heading'>Untitled Project</div>
+      <div className='group'>
+        <div className='label'>Contributors</div>
+        { contributors.map(c =>
+          <Box className='contributor row align-center justify-space-between' sx={{ background: randomcolor({ luminosity: 'light', seed: c }) }}>
+            { shorten_address(c, 21, 6) }
+            <a className='interactive' onClick={ () => remove_contributor(c) }>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </a>
+          </Box>
+        ) }
+        <input
+          placeholder='add contributor by ETH address'
+          value={ current_contributor }
+          onChange={ contributor_on_change }
+          onKeyDown={ contributor_on_keydown }
+          onPaste={ contributor_on_paste } />
+      </div>
+      <div className='group'>
+        <div className='label'>Residual Claimant</div>
+        <input placeholder='add claimant by ETH address' />
+      </div>
+      <div className='group'>
+        <div className='label'>Transaction Token</div>
+        <input />
+      </div>
+      <div className='group row spaced'>
+        <div>
+          <div className='label'>Target Revenue</div>
+          <input placeholder='e.g. 4,000' />
+        </div>
+        <div>
+          <div className='label'>Individual Payout</div>
+          <input placeholder='e.g. 1,000' />
+        </div>
+      </div>
+      <div className='group'>
+        <div className='label'>Execute by</div>
+        <input placeholder='Mon Nov 29 2021, 12:00 pm' />
+        <div className='label'>Complete by</div>
+        <input placeholder='Mon Dec 06 2021, 12:00 pm' />
+      </div>
+      <button type='submit'>Deploy</button>
     </form>
   )
 }

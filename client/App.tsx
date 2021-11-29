@@ -3,7 +3,7 @@ import { useEtherBalance, useEthers } from '@usedapp/core'
 import axios from 'axios'
 import useAxios from 'axios-hooks'
 import { Project, ProjectParams, DeployParams } from '../types'
-import DeployForm from './DeployForm'
+import DeployForm, { DeployForm2 } from './DeployForm'
 import ProjectView from './ProjectView'
 import ProjectsView from './ProjectsView'
 import Button from '@mui/material/Button'
@@ -89,6 +89,7 @@ export default function App() {
     set_modal_state({ ...modal_state, open: false })
   }
 
+  // DeployForm2 in development
   const begin_create_project = () => set_modal_state({ open: true, content: <DeployForm onSubmit={ submit_deploy } /> })
 
   return (
@@ -99,7 +100,7 @@ export default function App() {
         <br />
         {ether_balance ? shorten_balance(ether_balance) : '--'} ETH
       </Box>
-      <div className={`mgray bold interactive flex align-center ${ selected_project ? '' : 'hidden' }`} onClick={() => set_selected_project(null)}>
+      <div className={`mgray bold interactive row align-center ${ selected_project ? '' : 'hidden' }`} onClick={() => set_selected_project(null)}>
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
         </svg>

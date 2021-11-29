@@ -17,6 +17,9 @@
     "isolatedModules": true,
     "jsx": "react"
   },
+  "ts-node": {
+    "files": true
+  },
   "exclude": [
     "node_modules"
   ]

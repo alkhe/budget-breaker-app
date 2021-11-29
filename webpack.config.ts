@@ -1,4 +1,4 @@
-import { Configuration, EnvironmentPlugin } from 'webpack'
+import { Configuration, EnvironmentPlugin, ProvidePlugin } from 'webpack'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 
 const config: Configuration = {
@@ -23,7 +23,10 @@ const config: Configuration = {
     new HtmlWebpackPlugin({
       template: './client/index.html'
     }),
-    new EnvironmentPlugin(['CONTROLLER_ADDRESS', 'DEFAULT_ERC20_ADDRESS', 'MULTICALL_ADDRESS'])
+    new EnvironmentPlugin(['CONTROLLER_ADDRESS', 'DEFAULT_ERC20_ADDRESS', 'MULTICALL_ADDRESS']),
+    new ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+    })
   ],
   resolve: {
     extensions: ['.tsx', '.ts', '.js']
