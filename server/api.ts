@@ -1,7 +1,8 @@
 import { providers, Wallet } from 'ethers'
-import { FastifyPlugin } from 'fastify'
-import { DBO, Project, ProjectParams, ProjectInsert, ProjectMemberRelation, DeployParams, ProjectsByMemberParams, MembersByProjectParams } from '../types'
-import { IMain, IDatabase, IBaseProtocol } from 'pg-promise'
+import { FastifyPluginCallback } from 'fastify'
+import { DeployParams, ProjectsByMemberParams, MembersByProjectParams } from '../types'
+import { insert_project, insert_project_member_relations, get_projects_by_member, get_signatures_by_project, get_project_by_id, sign_project, set_project_executed, set_project_completed } from './db'
+import { IMain, IDatabase } from 'pg-promise'
 import { budget_breaker_factory } from '../common/ethers'
 import Bree from 'bree'
 import path from 'path'
@@ -19,38 +20,15 @@ function all(xs: boolean[]) {
   return true
 }
 
-async function insert_project({ db, pgp }: DBO, params: ProjectInsert): Promise<number> {
-  const q = pgp.helpers.insert(params, null, 'projects') + ' returning id'
-  return (await db.one(q)).id
-}
-
-async function insert_project_member_relations({ db, pgp }: DBO, project_id: number, members: string[]) {
-  const relations = members.map(member => ({ project_id, member }))
-  const q = pgp.helpers.insert(relations, ['project_id', 'member'], 'project_member_relations')
-  return db.none(q)
-}
-
-async function get_projects_by_member({ db }: DBO, member: string): Promise<string[]> {
-  return db.any('select P.*, array(select PMR.member from project_member_relations as PMR where P.id = PMR.project_id) as members, array(select PMR.signed from project_member_relations as PMR where P.id = PMR.project_id) as signatures from projects as P inner join project_member_relations as PMR on P.id = PMR.project_id where PMR.member = $1', [member])
-}
-
-async function get_signatures_by_project({ db }: DBO, project_id: number): Promise<boolean[]> {
-  return db.map('select signed from project_member_relations where project_id = $1', [project_id], (row: ProjectMemberRelation) => row.signed)
-}
-
-async function get_project_by_id({ db }: DBO, project_id: number): Promise<Project> {
-  return await db.one('select * from projects where id = $1', [project_id])
-}
-
 export default function api(
   pgp: IMain, db: IDatabase<{}>,
-  provider: providers.Provider, wallet: Wallet,
+  wallet: Wallet,
   bree: Bree
-): FastifyPlugin {
+): FastifyPluginCallback {
 
   const dbo = { db, pgp }
 
-  return (server, opts, done) => {
+  return (server, _, done) => {
     server.post('/deploy', async (req, res) => {
       // TODO ensure valid params
       const params = req.body as DeployParams
@@ -88,18 +66,10 @@ export default function api(
       res.send(rows)
     })
 
-    server.get('/members-by-project', async (req, res) => {
-      const params = req.query as MembersByProjectParams
-
-      const rows: string[] = await db.map('select member from project_member_relations where address = $1', [params.address], row => row.member)
-
-      res.send(rows)
-    })
-
     server.post('/sign', async (req, res) => {
       const params = req.body as { member: string, project_id: number }
 
-      const relation_id: number = await db.one('update project_member_relations set signed = true where member = $1 and project_id = $2 returning id', [params.member, params.project_id])
+      const relation_id: number = await sign_project(dbo, params.project_id, params.member)
 
       req.log.info(`member ${ params.member } signed project ${ params.project_id }`)
 
@@ -113,6 +83,7 @@ export default function api(
         req.log.info(`executing project ${ project.id }`)
         const budget_breaker = budget_breaker_factory.connect(wallet).attach(project.address)
         await budget_breaker.execute({ gasLimit: 1000000 })
+        await set_project_executed(dbo, project.id)
         req.log.info(`executed project ${ project.id }`)
 
         req.log.info(`scheduling completion of project ${ project.id }`)
@@ -125,7 +96,7 @@ export default function api(
           date: new Date(project.completion_deadline),
           worker: {
             workerData: {
-              id: project.id,
+              project_id: project.id,
               address: project.address
             }
           }

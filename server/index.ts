@@ -4,9 +4,8 @@ import fastify_cors from 'fastify-cors'
 import path from 'path'
 import pgp_factory from 'pg-promise'
 import api from './api'
-import { SERVER_PORT, PG_HOST, PG_PORT, PG_NAME, PG_USER, PG_PASS, dev, provider, wallet } from './config'
+import { SERVER_PORT, PG_HOST, PG_PORT, PG_NAME, PG_USER, PG_PASS, dev, wallet } from './config'
 import Bree from 'bree'
-import { add } from 'date-fns'
 
 const pgp = pgp_factory()
 
@@ -36,7 +35,7 @@ if (!dev) {
 
 server.register(api(
   pgp, db,
-  provider, wallet,
+  wallet,
   bree
 ))
 

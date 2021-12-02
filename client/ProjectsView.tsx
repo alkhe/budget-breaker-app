@@ -3,7 +3,7 @@ import { Project } from '../types'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
-import { shorten_address } from './util'
+import { shorten_address, convert_status } from './util'
 
 export type ProjectItemProps = {
   project: Project
@@ -22,6 +22,8 @@ export function ProjectItem({ project, selectProject }: ProjectItemProps) {
       <span className='title'>
         {project.description}
       </span>
+      Status: {convert_status(project.status)}
+      <br />
       Members: {project.members.length}
       <br />
       Token: {shorten_address(project.token)}

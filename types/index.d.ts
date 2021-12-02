@@ -16,8 +16,12 @@ export type ProjectInsert = Omit<ProjectParams, 'members' | 'creation_time' | 'e
   completion_deadline: string
 }
 
+export type ProjectStatus = 'proposed' | 'executed' | 'completed'
+
 export type ProjectData = ProjectInsert & {
   id: number
+  execution_time: string
+  status: ProjectStatus
 }
 
 export type Project = ProjectData & {

@@ -1,5 +1,6 @@
 import { BigNumber } from 'ethers'
 import { toChecksumAddress } from 'ethereum-checksum-address'
+import { ProjectStatus } from '../types'
 
 export function shorten_address(address: string, front: number = 3, back: number = 4) {
   const l = address.length
@@ -22,3 +23,10 @@ export function validate_address(address: string): (string | null) {
     return null
   }
 }
+
+export function convert_status(status: ProjectStatus) {
+  if (status === 'proposed') return 'Awaiting Signatures'
+  if (status === 'executed') return 'Executed'
+  return 'Completed'
+}
+

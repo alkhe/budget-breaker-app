@@ -1,5 +1,8 @@
 drop table if exists projects cascade;
 drop table if exists project_member_relations cascade;
+drop type if exists project_status;
+
+create type project_status as enum ('proposed', 'executed', 'completed');
 
 create table projects (
   id serial primary key,
@@ -12,6 +15,8 @@ create table projects (
   creation_time timestamp not null,
   execution_deadline timestamp not null,
   completion_deadline timestamp not null,
+  execution_time timestamp,
+  status project_status not null default 'proposed',
   unique (address)
 );
 
@@ -28,3 +33,4 @@ create table project_member_relations (
 create index pmr_project_id on project_member_relations (project_id);
 create index pmr_member on project_member_relations (member);
 create index pmr_project_id_member on project_member_relations (project_id, member);
+
