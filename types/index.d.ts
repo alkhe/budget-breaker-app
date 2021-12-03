@@ -54,3 +54,5 @@ export type DBO = {
   db: IBaseProtocol<{}>
 }
 
+export type ProjectFilter = null | ProjectStatus | 'abandoned'
+

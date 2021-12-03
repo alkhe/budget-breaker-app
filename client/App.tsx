@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useEtherBalance, useEthers } from '@usedapp/core'
 import axios from 'axios'
 import useAxios from 'axios-hooks'
-import { Project, ProjectParams, DeployParams } from '../types'
+import { Project, ProjectParams, DeployParams, ProjectStatus, ProjectFilter } from '../types'
 import DeployForm, { DeployForm2 } from './DeployForm'
 import ProjectView from './ProjectView'
 import ProjectsView from './ProjectsView'
@@ -10,16 +10,43 @@ import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import PersistentModal, { PersistentModalState } from './PersistentModal'
 import { budget_breaker_factory } from '../common/ethers'
-import { shorten_address, shorten_balance } from '../common/util'
+import { shorten_address, shorten_balance, capitalize } from '../common/util'
 
 import './index.css'
 
+const project_filters: ProjectFilter[] = [null, 'proposed', 'executed', 'completed', 'abandoned']
+
+function print_project_filter(pf: ProjectFilter): string {
+  if (pf === null) return 'All'
+  return capitalize(pf)
+}
+
 const CONTROLLER_ADDRESS = process.env.CONTROLLER_ADDRESS as string
+
+type FilterDropdownProps = {
+  setFilter: (pf: ProjectFilter) => void
+}
+
+function FilterDropdown({ setFilter }: FilterDropdownProps) {
+  return (
+    <div className='filter-dropdown'>
+      {
+        project_filters.map(pf =>
+          <div className='item interactive transition' onClick={ () => setFilter(pf) }>
+            { print_project_filter(pf) }
+          </div>
+        )
+      }
+    </div>
+  )
+}
 
 export default function App() {
   const { activateBrowserWallet, account, library } = useEthers()
   const ether_balance = useEtherBalance(account)
   const [selected_project, set_selected_project] = useState<Project | null>(null)
+  const [filter_dropdown_open, set_filter_dropdown_open] = useState<boolean>(false)
+  const [project_filter, set_project_filter] = useState<ProjectFilter>(null)
 
   const [modal_state, set_modal_state] = useState<PersistentModalState>({
     open: false,
@@ -57,6 +84,11 @@ export default function App() {
         <Button onClick={() => activateBrowserWallet()} variant='contained'>Connect</Button>
       </div>
     )
+  }
+
+  function set_filter_and_close(pf: ProjectFilter) {
+    set_project_filter(pf)
+    set_filter_dropdown_open(false)
   }
 
   async function deploy_budget_breaker(params: ProjectParams) {
@@ -100,23 +132,35 @@ export default function App() {
         <br />
         {ether_balance ? shorten_balance(ether_balance) : '--'} ETH
       </Box>
-      <div className={`nav-up bold interactive row align-center ${ selected_project ? '' : 'hidden' }`} onClick={() => set_selected_project(null)}>
+      <div className={`interactive nav-control bold row align-center ${ selected_project ? '' : 'hidden' }`} onClick={() => set_selected_project(null)}>
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
         </svg>
         Projects
       </div>
-      <div className='heading'>
+      <div className='row align-baseline justify-space-between'>
+        <div className='heading'>
+          {
+            selected_project
+              ? (selected_project.description || 'Untitled Project')
+              : 'Projects'
+          }
+        </div>
         {
           selected_project
-            ? (selected_project.description || 'Untitled Project')
-            : 'Projects'
+            ? null
+            : <div className='relative'>
+                <div className='filter interactive nav-control' onClick={ () => set_filter_dropdown_open(!filter_dropdown_open) }>
+                  Filter: <span className='bold'>{ print_project_filter(project_filter) }</span>
+                </div>
+                <div className={ `empty-bottom transition ${ filter_dropdown_open ? '' : 'hidden opacity0' }` }><FilterDropdown setFilter={ set_filter_and_close } /></div>
+              </div>
         }
       </div>
       {
         selected_project
           ? <ProjectView project={selected_project} signProject={sign_project} />
-          : <ProjectsView projects={projects || []} selectProject={set_selected_project} beginCreateProject={begin_create_project} />
+          : <ProjectsView projects={projects || []} filter={ project_filter } selectProject={set_selected_project} beginCreateProject={begin_create_project} />
       }
     </>
   )

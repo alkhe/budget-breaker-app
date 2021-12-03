@@ -80,12 +80,31 @@ button, input {
   margin-bottom: 1.5rem;
 }
 
-.nav-up {
+.nav-control {
   color: #aaaaaa;
   transition: color .2s;
 }
 
-.nav-up:hover {
+.nav-control:hover {
+  color: #888888;
+}
+
+.filter-dropdown {
+  text-align: right;
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 2px;
+  padding: .25rem 0;
+  margin: .25rem -.75rem 0;
+  box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+}
+
+.filter-dropdown .item {
+  padding: .125rem .75rem;
+  color: #aaaaaa;
+}
+
+.filter-dropdown .item:hover {
   color: #888888;
 }
 
@@ -95,6 +114,18 @@ button, input {
 
 .bold {
   font-weight: 700;
+}
+
+.relative {
+  position: relative;
+}
+
+.empty-bottom {
+  bottom: 0;
+  right: 0;
+  height: 0;
+  position: absolute;
+  z-index: 5;
 }
 
 .row {
@@ -125,6 +156,14 @@ button, input {
   align-items: stretch;
 }
 
+.align-baseline {
+  align-items: baseline;
+}
+
+.align-end {
+  align-items: end;
+}
+
 .justify-center {
   justify-content: center;
 }
@@ -139,6 +178,14 @@ button, input {
 
 .hidden {
   visibility: hidden;
+}
+
+.transition {
+  transition: .2s ease;
+}
+
+.opacity0 {
+  opacity: 0;
 }
 
 svg {

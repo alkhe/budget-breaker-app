@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers'
 import { toChecksumAddress } from 'ethereum-checksum-address'
-import { ProjectStatus } from '../types'
+import { Project } from '../types'
 import { format } from 'date-fns'
 import { DeployParams, ProjectInsert } from '../types'
 
@@ -26,10 +26,18 @@ export function validate_address(address: string): (string | null) {
   }
 }
 
-export function convert_status(status: ProjectStatus) {
-  if (status === 'proposed') return 'Proposed'
-  if (status === 'executed') return 'Executed'
-  return 'Completed'
+export function iso_ms(iso: string) {
+  return Number(new Date(iso))
+}
+
+export function print_status(project: Project) {
+  if (project.status === 'proposed') {
+    return Date.now() <= iso_ms(project.execution_deadline)
+      ? 'Proposed'
+      : 'Abandoned'
+  }
+
+  return capitalize(project.status)
 }
 
 export function format_time(utc: string) {
@@ -77,5 +85,9 @@ export function validate_deploy_params(params: DeployParams): ProjectInsert | nu
     execution_deadline: ms_to_iso(params.execution_deadline),
     completion_deadline: ms_to_iso(params.completion_deadline)
   }
+}
+
+export function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.substring(1)
 }
 

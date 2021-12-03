@@ -6,7 +6,7 @@ import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
 import BudgetBreakerArtifact from '../contracts/BudgetBreaker.json'
 import { ContractFactory } from '@usedapp/core/node_modules/@ethersproject/contracts'
-import { shorten_address, convert_status, format_time } from '../common/util'
+import { shorten_address, print_status, format_time } from '../common/util'
 
 export type ProjectViewProps = {
   project: Project
@@ -69,9 +69,9 @@ export default function ProjectView({ project, signProject }: ProjectViewProps) 
     }
   }, [state])
 
-  const converted_status = convert_status(project.status)
+  const converted_status = print_status(project)
   const status_content =
-    project.status === 'completed'
+    converted_status === 'Abandoned' || converted_status === 'Completed'
       ? converted_status
       : `${ converted_status } (${ (new Date(project.status === 'proposed' ? project.creation_time : project.execution_time)).toLocaleString() })`
 
