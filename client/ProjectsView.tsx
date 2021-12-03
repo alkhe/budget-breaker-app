@@ -50,8 +50,6 @@ export function ProjectItem({ project, selectProject }: ProjectItemProps) {
 export default function ProjectsView({ projects, filter, selectProject, beginCreateProject }: ProjectsViewProps) {
   const filtered_projects = filter_projects(filter, projects)
 
-  console.log(filter)
-
   return (
     <div className='projects-container'>
       {filtered_projects.map(p => (

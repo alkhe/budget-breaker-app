@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useEtherBalance, useEthers } from '@usedapp/core'
 import axios from 'axios'
 import useAxios from 'axios-hooks'
@@ -23,8 +23,47 @@ function print_project_filter(pf: ProjectFilter): string {
 
 const CONTROLLER_ADDRESS = process.env.CONTROLLER_ADDRESS as string
 
+type FilterGroupProps = {
+  filter: ProjectFilter
+  setFilter: (pf: ProjectFilter) => void
+  dropdownOpen: boolean
+  setDropdownOpen: (open: boolean) => void
+}
+
 type FilterDropdownProps = {
   setFilter: (pf: ProjectFilter) => void
+}
+
+function FilterGroup({ filter, setFilter, dropdownOpen, setDropdownOpen }: FilterGroupProps) {
+  function set_filter_and_close(pf: ProjectFilter) {
+    setFilter(pf)
+    setDropdownOpen(false)
+  }
+
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    function handler(e: Event) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handler)
+
+    return () => {
+      document.removeEventListener('mousedown', handler)
+    }
+  }, [ref])
+
+  return (
+    <div className='relative' ref={ ref }>
+      <div className='filter interactive nav-control' onClick={ () => setDropdownOpen(!dropdownOpen) }>
+        Filter: <span className='bold'>{ print_project_filter(filter) }</span>
+      </div>
+      <div className={ `empty-bottom transition ${ dropdownOpen ? '' : 'hidden opacity0' }` }><FilterDropdown setFilter={ set_filter_and_close } /></div>
+    </div>
+  )
 }
 
 function FilterDropdown({ setFilter }: FilterDropdownProps) {
@@ -86,11 +125,6 @@ export default function App() {
     )
   }
 
-  function set_filter_and_close(pf: ProjectFilter) {
-    set_project_filter(pf)
-    set_filter_dropdown_open(false)
-  }
-
   async function deploy_budget_breaker(params: ProjectParams) {
     const signer = library!.getSigner()
     const deployed = await budget_breaker_factory.connect(signer).deploy(
@@ -146,16 +180,7 @@ export default function App() {
               : 'Projects'
           }
         </div>
-        {
-          selected_project
-            ? null
-            : <div className='relative'>
-                <div className='filter interactive nav-control' onClick={ () => set_filter_dropdown_open(!filter_dropdown_open) }>
-                  Filter: <span className='bold'>{ print_project_filter(project_filter) }</span>
-                </div>
-                <div className={ `empty-bottom transition ${ filter_dropdown_open ? '' : 'hidden opacity0' }` }><FilterDropdown setFilter={ set_filter_and_close } /></div>
-              </div>
-        }
+        { selected_project ? null : <FilterGroup filter={ project_filter } setFilter={ set_project_filter } dropdownOpen={ filter_dropdown_open } setDropdownOpen={ set_filter_dropdown_open } /> }
       </div>
       {
         selected_project
