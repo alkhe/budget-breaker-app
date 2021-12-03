@@ -10,7 +10,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import LocalizationProvider from '@mui/lab/LocalizationProvider'
 import AdapterDateFns from '@mui/lab/AdapterDateFns'
 import RemoveIcon from '@mui/icons-material/Remove'
-import { shorten_address, validate_address } from './util'
+import { shorten_address, validate_address } from '../common/util'
 import randomcolor from 'randomcolor'
 
 export type DeployFormProps = {

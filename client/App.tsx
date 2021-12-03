@@ -10,7 +10,7 @@ import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import PersistentModal, { PersistentModalState } from './PersistentModal'
 import { budget_breaker_factory } from '../common/ethers'
-import { shorten_address, shorten_balance } from './util'
+import { shorten_address, shorten_balance } from '../common/util'
 
 import './index.css'
 
@@ -100,7 +100,7 @@ export default function App() {
         <br />
         {ether_balance ? shorten_balance(ether_balance) : '--'} ETH
       </Box>
-      <div className={`mgray bold interactive row align-center ${ selected_project ? '' : 'hidden' }`} onClick={() => set_selected_project(null)}>
+      <div className={`nav-up bold interactive row align-center ${ selected_project ? '' : 'hidden' }`} onClick={() => set_selected_project(null)}>
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
         </svg>

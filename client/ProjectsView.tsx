@@ -3,7 +3,7 @@ import { Project } from '../types'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
-import { shorten_address, convert_status } from './util'
+import { shorten_address, convert_status } from '../common/util'
 
 export type ProjectItemProps = {
   project: Project

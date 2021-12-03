@@ -4,21 +4,11 @@ import { DeployParams, ProjectsByMemberParams, MembersByProjectParams } from '..
 import { insert_project, insert_project_member_relations, get_projects_by_member, get_signatures_by_project, get_project_by_id, sign_project, set_project_executed, set_project_completed } from './db'
 import { IMain, IDatabase } from 'pg-promise'
 import { budget_breaker_factory } from '../common/ethers'
+import { ms_to_iso, all, validate_address, validate_addresses, validate_deploy_params } from '../common/util'
 import Bree from 'bree'
 import path from 'path'
 
 const complete_worker_path = path.join(__dirname, '../jobs/complete.js')
-
-function ms_to_iso(x: number) {
-  return (new Date(x)).toISOString()
-}
-
-function all(xs: boolean[]) {
-  for (let i = 0; i < xs.length; i++) {
-    if (!xs[i]) return false
-  }
-  return true
-}
 
 export default function api(
   pgp: IMain, db: IDatabase<{}>,
@@ -33,22 +23,20 @@ export default function api(
       // TODO ensure valid params
       const params = req.body as DeployParams
 
+      const v_insert = validate_deploy_params(params)
+      const v_members = validate_addresses(params.members)
+
+      if (v_insert === null || v_members === null) {
+        res.code(400).send('bad request')
+        return
+      }
+
       const project_id = await db.tx(async t => {
         const dbo = { db: t, pgp }
 
-        const project_id = await insert_project(dbo, {
-          address: params.address,
-          token: params.token,
-          description: params.description,
-          residual: params.residual,
-          target: params.target,
-          target_share: params.target_share,
-          creation_time: ms_to_iso(params.creation_time),
-          execution_deadline: ms_to_iso(params.execution_deadline),
-          completion_deadline: ms_to_iso(params.completion_deadline)
-        })
+        const project_id = await insert_project(dbo, v_insert)
 
-        await insert_project_member_relations(dbo, project_id, params.members)
+        await insert_project_member_relations(dbo, project_id, v_members)
 
         return project_id
       })
@@ -61,7 +49,14 @@ export default function api(
     server.get('/projects-by-member', async (req, res) => {
       const params = req.query as ProjectsByMemberParams
 
-      const rows = await get_projects_by_member(dbo, params.member.toLowerCase())
+      const member = validate_address(params.member)
+
+      if (member === null) {
+        res.status(400).send('invalid member')
+        return
+      }
+
+      const rows = await get_projects_by_member(dbo, member)
 
       res.send(rows)
     })

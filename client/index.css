@@ -54,6 +54,12 @@ button, input {
 
 @font-face {
   font-family: 'Fira Code';
+  src: url('./fonts/FiraCode-Medium.woff2');
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: 'Fira Code';
   src: url('./fonts/FiraCode-SemiBold.woff2');
   font-weight: 600;
 }
@@ -72,6 +78,15 @@ button, input {
   font-size: 2.25rem;
   font-weight: 700;
   margin-bottom: 1.5rem;
+}
+
+.nav-up {
+  color: #aaaaaa;
+  transition: color .2s;
+}
+
+.nav-up:hover {
+  color: #888888;
 }
 
 .mgray {
@@ -104,6 +119,10 @@ button, input {
 
 .align-center {
   align-items: center;
+}
+
+.align-stretch {
+  align-items: stretch;
 }
 
 .justify-center {
@@ -148,6 +167,17 @@ svg {
 .project-item {
   border: 1px solid #aaaaaa;
   align-items: start;
+  transition: .2s ease;
+}
+
+.project-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+}
+
+.project-item:active {
+  transform: translateY(1px);
+  box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .project-item .title {
@@ -176,7 +206,7 @@ svg {
   position: fixed;
   right: 0;
   top: 0;
-  transition: 0.2s ease-out;
+  transition: .2s ease-out;
   visibility: hidden;
   z-index: 999;
 }
@@ -220,7 +250,7 @@ svg {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: 0.3s;
+  transition: .2s;
 }
 
 .back-button svg {
@@ -269,7 +299,7 @@ form button {
   font-weight: 600;
   background: transparent;
   padding: .625rem 0;
-  transition: .3s;
+  transition: .2s;
 }
 
 form button:hover {
@@ -288,5 +318,85 @@ form .contributor {
 
 form .contributor svg {
   color: rgba(68, 68, 68, .5);
+}
+
+/* Project View */
+
+.project {
+  margin-bottom: 1.5rem;
+}
+
+.project > :first-child {
+  flex: 0 50%;
+}
+
+.project > :last-child {
+  flex: 1
+}
+
+.property {
+  margin-bottom: 1rem;
+}
+
+.property .name {
+  font-weight: 600;
+}
+
+.property .value {
+  font-family: 'Fira Code';
+}
+
+.team {
+  border: 1px solid #888888;
+  border-radius: 2px;
+  padding: 2rem;
+}
+
+.team .heading {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.team .members {
+  align-self: stretch;
+}
+
+.team .members > :not(:last-child) {
+  margin-bottom: 1.5rem;
+}
+
+.team .membersig {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.team .membersig svg {
+  margin-left: .375rem;
+  width: 1.125rem;
+}
+
+.awaiting {
+  color: #888888;
+}
+
+.signed {
+  color: #3CC784;
+}
+
+button.sign {
+  color: #3C6BC7;
+  background: transparent;
+  border: 1px solid #3C6BC7;
+  border-radius: 2px;
+  padding: .5rem .75rem;
+  margin: calc(-.5rem - 1px) 0;
+  transition: .2s;
+}
+
+button.sign:hover {
+  background: #3C6BC7;
+  color: #ffffff;
 }
 
