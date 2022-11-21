@@ -43,7 +43,7 @@
     "env-cmd": "^10.1.0",
     "ethereum-checksum-address": "^0.0.7",
     "ethers": "^5.5.1",
-    "fastify": "^3.22.1",
+    "fastify": "^3.29.4",
     "fastify-cors": "^6.0.2",
     "fastify-static": "^4.4.2",
     "pg-promise": "^10.11.1",
